@@ -1,0 +1,1779 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="ReserVa — Experiencia gastronómica y reservas en tiempo real." />
+    <title>ReserVa — Reservas Exclusivas</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+      :root {
+        --bg-wine-dark: #120105;         
+        --bg-wine-card: #22050c;         
+        --bg-wine-light: #380a16;        
+        --border-wine: rgba(240, 193, 75, 0.25); 
+        
+        --gold-primary: #f0c14b;         
+        --gold-hover: #ffe082;           
+        --gold-glow: rgba(240, 193, 75, 0.35); 
+        
+        --text-main: #ffffff;            
+        --text-muted: #d8b8be;           
+        --text-dim: #9e737c;
+
+        --font-serif: 'Playfair Display', Georgia, serif;
+        --font-sans: 'Plus Jakarta Sans', sans-serif;
+
+        --radius-sm: 8px;
+        --radius-md: 16px;
+        --radius-lg: 28px;
+        --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        color-scheme: dark;
+      }
+
+      body {
+        background-color: var(--bg-wine-dark);
+        color: var(--text-main);
+        font-family: var(--font-sans);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      a { color: inherit; text-decoration: none; }
+
+      .container {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      /* Barra de Progreso Superior */
+      .scroll-progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--gold-primary), var(--gold-hover));
+        width: 0%;
+        z-index: 120;
+        box-shadow: 0 0 10px var(--gold-primary);
+      }
+
+      /* ==========================================================================
+         HEADER / NAVBAR
+         ========================================================================== */
+      .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 100;
+        padding: 24px 0;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .header.is-scrolled {
+        padding: 14px 0;
+        background: rgba(18, 1, 5, 0.85);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid rgba(240, 193, 75, 0.15);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+
+      .header__inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-family: var(--font-serif);
+        font-size: 1.6rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+      }
+      .brand__mark {
+        width: 38px;
+        height: 38px;
+        background: transparent;
+        border: 1px solid var(--gold-primary);
+        color: var(--gold-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+      }
+      .brand:hover .brand__mark {
+        background: var(--gold-primary);
+        color: #120105;
+        box-shadow: 0 0 15px var(--gold-glow);
+      }
+
+      .nav-desktop {
+        display: flex;
+        align-items: center;
+        gap: 36px;
+      }
+
+      .nav__link {
+        position: relative;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        font-weight: 500;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 8px 0;
+        transition: color 0.3s ease;
+      }
+
+      .nav__link::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0%;
+        height: 2px;
+        background: var(--gold-primary);
+        box-shadow: 0 0 8px var(--gold-glow);
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        transform: translateX(-50%);
+      }
+
+      .nav__link:hover,
+      .nav__link.is-active {
+        color: var(--text-main);
+      }
+
+      .nav__link:hover::after,
+      .nav__link.is-active::after {
+        width: 100%;
+      }
+
+      .menu-toggle {
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        gap: 6px;
+        width: 40px;
+        height: 40px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        z-index: 110;
+      }
+
+      .menu-toggle span {
+        display: block;
+        width: 100%;
+        height: 2px;
+        background: var(--gold-primary);
+        transition: var(--transition);
+        transform-origin: center;
+      }
+
+      .menu-toggle.is-open span:nth-child(1) {
+        transform: translateY(4px) rotate(45deg);
+      }
+
+      .menu-toggle.is-open span:nth-child(2) {
+        transform: translateY(-4px) rotate(-45deg);
+      }
+
+      .mobile-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(18, 1, 5, 0.97);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: var(--transition);
+        z-index: 105;
+      }
+
+      .mobile-overlay.is-open {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .mobile-nav {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 28px;
+        text-align: center;
+      }
+
+      .mobile-nav .nav__link {
+        font-family: var(--font-serif);
+        font-size: 2rem;
+        text-transform: none;
+        color: var(--text-main);
+      }
+
+      /* BUTTONS */
+      .btn {
+        position: relative;
+        overflow: hidden;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 26px;
+        border-radius: var(--radius-sm);
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        border: 1px solid transparent;
+        will-change: transform;
+        transition: var(--transition);
+      }
+      .btn i { width: 18px; height: 18px; }
+      .btn--gold {
+        background: linear-gradient(135deg, var(--gold-primary), #dca626);
+        color: #120105;
+        box-shadow: 0 4px 20px var(--gold-glow);
+      }
+      .btn--gold:hover {
+        background: linear-gradient(135deg, var(--gold-hover), var(--gold-primary));
+        transform: translateY(-2px);
+      }
+      .btn--outline {
+        border-color: var(--gold-primary);
+        color: var(--gold-primary);
+        background: rgba(240, 193, 75, 0.05);
+      }
+      .btn--outline:hover {
+        background: var(--gold-primary);
+        color: #120105;
+      }
+
+      /* ==========================================================================
+         HERO EDITORIAL REDISEÑADO
+         ========================================================================== */
+      .hero-editorial {
+        position: relative;
+        padding: 160px 0 100px;
+        background: radial-gradient(circle at 80% 20%, rgba(56, 10, 22, 0.7) 0%, var(--bg-wine-dark) 65%);
+        overflow: hidden;
+      }
+
+      .hero-editorial::before {
+        content: '';
+        position: absolute;
+        top: -10%;
+        right: -5%;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(240, 193, 75, 0.08) 0%, transparent 70%);
+        pointer-events: none;
+      }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 60px;
+        align-items: center;
+      }
+
+      /* Columna Narrativa */
+      .hero-badge-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 18px;
+        border-radius: 30px;
+        background: rgba(240, 193, 75, 0.08);
+        border: 1px solid var(--border-wine);
+        color: var(--gold-primary);
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 28px;
+      }
+
+      .hero-badge-pill i { width: 15px; height: 15px; }
+
+      .hero-title-editorial {
+        font-family: var(--font-serif);
+        font-size: 3.8rem;
+        line-height: 1.08;
+        font-weight: 500;
+        color: #ffffff;
+        margin-bottom: 24px;
+        letter-spacing: -0.5px;
+      }
+
+      .hero-title-editorial span {
+        display: block;
+        color: var(--gold-primary);
+        font-style: italic;
+        font-weight: 400;
+      }
+
+      .hero-desc {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        line-height: 1.7;
+        margin-bottom: 36px;
+        max-width: 520px;
+      }
+
+      .hero-stats-row {
+        display: flex;
+        gap: 36px;
+        padding-top: 24px;
+        border-top: 1px dashed var(--border-wine);
+      }
+
+      .hero-stat-item {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .hero-stat-num {
+        font-family: var(--font-serif);
+        font-size: 2.1rem;
+        font-weight: 700;
+        color: var(--gold-primary);
+        line-height: 1;
+      }
+
+      .hero-stat-lbl {
+        font-size: 0.8rem;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 4px;
+      }
+
+      /* Columna Card Interactiva */
+      .hero-interactive-card {
+        position: relative;
+      }
+
+      .hero-visual-frame {
+        position: relative;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        border: 1px solid var(--border-wine);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+        background: var(--bg-wine-card);
+      }
+
+      .hero-visual-img {
+        width: 100%;
+        height: 280px;
+        object-fit: cover;
+        display: block;
+        filter: brightness(0.85);
+      }
+
+      .hero-booking-widget {
+        background: rgba(34, 5, 12, 0.92);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding: 32px;
+        border-top: 1px solid var(--border-wine);
+      }
+
+      .widget-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .widget-title {
+        font-family: var(--font-serif);
+        font-size: 1.3rem;
+        color: var(--text-main);
+      }
+
+      .widget-tag {
+        font-size: 0.72rem;
+        background: rgba(240, 193, 75, 0.15);
+        color: var(--gold-primary);
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .widget-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      .widget-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        background: rgba(18, 1, 5, 0.7);
+        border: 1px solid var(--border-wine);
+        padding: 10px 14px;
+        border-radius: var(--radius-sm);
+        transition: var(--transition);
+      }
+
+      .widget-field:focus-within {
+        border-color: var(--gold-primary);
+        box-shadow: 0 0 10px var(--gold-glow);
+      }
+
+      .widget-field label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: var(--gold-primary);
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .widget-field label i { width: 12px; height: 12px; }
+
+      .widget-field select,
+      .widget-field input {
+        background: transparent;
+        border: none;
+        color: var(--text-main);
+        font-family: var(--font-sans);
+        font-size: 0.9rem;
+        font-weight: 600;
+        outline: none;
+        cursor: pointer;
+      }
+
+      .zone-pills {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 24px;
+      }
+
+      .zone-pill {
+        flex: 1;
+        text-align: center;
+        padding: 8px 0;
+        background: rgba(18, 1, 5, 0.6);
+        border: 1px solid rgba(240, 193, 75, 0.15);
+        border-radius: var(--radius-sm);
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .zone-pill.is-active,
+      .zone-pill:hover {
+        border-color: var(--gold-primary);
+        background: var(--bg-wine-light);
+        color: var(--gold-primary);
+        font-weight: 600;
+      }
+
+      /* Float Badge Decorativo */
+      .hero-float-badge {
+        position: absolute;
+        top: -20px;
+        left: -20px;
+        background: rgba(18, 1, 5, 0.9);
+        border: 1px solid var(--border-wine);
+        backdrop-filter: blur(12px);
+        padding: 12px 20px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+        z-index: 5;
+      }
+
+      .badge-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(240, 193, 75, 0.15);
+        color: var(--gold-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .badge-txt-main {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-main);
+        line-height: 1.2;
+      }
+
+      .badge-txt-sub {
+        font-size: 0.72rem;
+        color: var(--text-dim);
+      }
+
+      /* MARQUEE EDITORIAL */
+      .marquee-wrapper {
+        border-top: 1px solid var(--border-wine);
+        border-bottom: 1px solid var(--border-wine);
+        background: #1b030a;
+        overflow: hidden;
+        padding: 16px 0;
+        white-space: nowrap;
+      }
+      .marquee-track {
+        display: inline-flex;
+        gap: 40px;
+        animation: marquee 25s linear infinite;
+      }
+      .marquee-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-family: var(--font-serif);
+        font-size: 1.2rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+      .marquee-item i { color: var(--gold-primary); width: 18px; height: 18px; }
+      @keyframes marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+      }
+
+      /* AMBIENTES: MAPA INTERACTIVO */
+      .experience-section {
+        padding: 120px 0;
+        position: relative;
+      }
+      .editorial-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 60px;
+      }
+      .editorial-header h2 {
+        font-family: var(--font-serif);
+        font-size: 3.2rem;
+        line-height: 1.1;
+        max-width: 600px;
+      }
+
+      .floorplan-layout {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+        gap: 40px;
+        align-items: center;
+        background: var(--bg-wine-card);
+        border: 1px solid var(--border-wine);
+        border-radius: var(--radius-lg);
+        padding: 40px;
+      }
+      .zone-selector {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .zone-card {
+        background: rgba(18, 1, 5, 0.6);
+        border: 1px solid rgba(240, 193, 75, 0.15);
+        padding: 20px 24px;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: var(--transition);
+      }
+      .zone-card.is-selected,
+      .zone-card:hover {
+        border-color: var(--gold-primary);
+        background: rgba(56, 10, 22, 0.8);
+        transform: translateX(10px);
+      }
+      .zone-card-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+      }
+      .zone-title {
+        font-family: var(--font-serif);
+        font-size: 1.25rem;
+      }
+      .zone-badge {
+        font-size: 0.7rem;
+        padding: 4px 10px;
+        border-radius: 20px;
+        background: rgba(240, 193, 75, 0.15);
+        color: var(--gold-primary);
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .zone-display {
+        position: relative;
+        height: 420px;
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        border: 1px solid var(--border-wine);
+      }
+      .zone-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: var(--transition);
+      }
+      .zone-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 30px;
+        background: linear-gradient(180deg, transparent 0%, rgba(18, 1, 5, 0.95) 100%);
+      }
+
+      /* SECCIÓN ASIMÉTRICA DE GARANTÍAS */
+      .services-asymmetric {
+        padding: 100px 0;
+        background: #170207;
+        border-top: 1px solid var(--border-wine);
+        border-bottom: 1px solid var(--border-wine);
+      }
+      .asymmetric-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 60px;
+        align-items: center;
+      }
+      .feature-big {
+        position: relative;
+        padding: 48px;
+        background: linear-gradient(145deg, var(--bg-wine-card), var(--bg-wine-light));
+        border: 1px solid var(--border-wine);
+        border-radius: var(--radius-lg);
+      }
+      .feature-num {
+        font-family: var(--font-serif);
+        font-size: 5rem;
+        line-height: 1;
+        color: var(--gold-primary);
+        opacity: 0.3;
+        position: absolute;
+        top: 20px;
+        right: 30px;
+      }
+      .feature-list {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .feature-item-inline {
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+        padding-bottom: 24px;
+        border-bottom: 1px dashed var(--border-wine);
+      }
+      .feature-item-inline:last-child { border-bottom: none; }
+      .feature-icon-wrapper {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: rgba(240, 193, 75, 0.1);
+        border: 1px solid var(--border-wine);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gold-primary);
+        flex-shrink: 0;
+      }
+
+      /* VALORACIONES */
+      .reviews-section {
+        padding: 100px 0;
+        background: var(--bg-wine-dark);
+        border-bottom: 1px solid var(--border-wine);
+      }
+      .reviews-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 48px;
+        align-items: center;
+      }
+      .rating-stat-card {
+        background: var(--bg-wine-card);
+        border: 1px solid var(--border-wine);
+        border-radius: var(--radius-lg);
+        padding: 40px;
+        text-align: center;
+      }
+      .rating-score {
+        font-family: var(--font-serif);
+        font-size: 4.5rem;
+        color: var(--gold-primary);
+        line-height: 1;
+        margin-bottom: 8px;
+      }
+      .rating-stars {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        color: var(--gold-primary);
+        margin-bottom: 12px;
+      }
+      .rating-stars i { fill: var(--gold-primary); width: 20px; height: 20px; }
+      .testimonials-cards {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .testimonial-card {
+        background: rgba(34, 5, 12, 0.6);
+        border: 1px solid rgba(240, 193, 75, 0.15);
+        border-radius: var(--radius-md);
+        padding: 28px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: var(--transition);
+      }
+      .testimonial-card:hover {
+        border-color: var(--gold-primary);
+        transform: translateY(-5px);
+        background: var(--bg-wine-card);
+      }
+      .testimonial-quote {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        margin-bottom: 20px;
+        font-style: italic;
+      }
+      .testimonial-author {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .author-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        border: 1px solid var(--gold-primary);
+        object-fit: cover;
+      }
+
+      /* SECCIÓN EXPERIENCIA */
+      .exp-redesign-section {
+        padding: 120px 0;
+        background: radial-gradient(circle at 10% 20%, rgba(56, 10, 22, 0.6) 0%, var(--bg-wine-dark) 70%);
+        position: relative;
+      }
+
+      .exp-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr;
+        gap: 50px;
+        align-items: center;
+        margin-top: 50px;
+      }
+
+      .exp-tabs {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .exp-tab-btn {
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        padding: 24px;
+        background: var(--bg-wine-card);
+        border: 1px solid var(--border-wine);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: var(--transition);
+        text-align: left;
+        color: inherit;
+        width: 100%;
+      }
+
+      .exp-tab-btn:hover,
+      .exp-tab-btn.is-active {
+        border-color: var(--gold-primary);
+        background: var(--bg-wine-light);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        transform: translateX(8px);
+      }
+
+      .exp-tab-num {
+        font-family: var(--font-serif);
+        font-size: 1.5rem;
+        color: var(--gold-primary);
+        font-weight: 700;
+        background: rgba(240, 193, 75, 0.1);
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border: 1px solid var(--border-wine);
+      }
+
+      .exp-tab-btn.is-active .exp-tab-num {
+        background: var(--gold-primary);
+        color: #120105;
+        box-shadow: 0 0 12px var(--gold-glow);
+      }
+
+      .exp-tab-title {
+        font-family: var(--font-serif);
+        font-size: 1.25rem;
+        color: var(--text-main);
+        margin-bottom: 4px;
+      }
+
+      .exp-tab-desc {
+        color: var(--text-muted);
+        font-size: 0.88rem;
+        line-height: 1.5;
+      }
+
+      .exp-preview-card {
+        position: relative;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        border: 1px solid var(--border-wine);
+        background: var(--bg-wine-card);
+        height: 500px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
+      }
+
+      .exp-preview-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: opacity 0.5s ease;
+      }
+
+      .exp-preview-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(18, 1, 5, 0.1) 20%, rgba(18, 1, 5, 0.95) 90%);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 40px;
+      }
+
+      .exp-preview-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(240, 193, 75, 0.15);
+        color: var(--gold-primary);
+        border: 1px solid var(--border-wine);
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        width: fit-content;
+        margin-bottom: 12px;
+        backdrop-filter: blur(8px);
+      }
+
+      .exp-preview-title {
+        font-family: var(--font-serif);
+        font-size: 2rem;
+        color: var(--text-main);
+        margin-bottom: 8px;
+      }
+
+      .exp-preview-text {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        max-width: 480px;
+      }
+
+      .exp-status-chip {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        background: rgba(18, 1, 5, 0.85);
+        border: 1px solid var(--border-wine);
+        backdrop-filter: blur(12px);
+        padding: 10px 18px;
+        border-radius: 30px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.8rem;
+        color: var(--gold-primary);
+        font-weight: 600;
+      }
+
+      .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background-color: var(--gold-primary);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--gold-primary);
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% { transform: scale(0.95); opacity: 0.8; }
+        50% { transform: scale(1.3); opacity: 1; }
+        100% { transform: scale(0.95); opacity: 0.8; }
+      }
+
+      /* CTA FINAL */
+      .cta-final {
+        padding: 100px 0;
+        background: radial-gradient(circle at 50% 50%, #4d0a1b 0%, var(--bg-wine-dark) 80%);
+        text-align: center;
+        border-top: 1px solid var(--border-wine);
+      }
+
+      /* FOOTER PREMIUM */
+      .footer-premium {
+        background: #0d0104;
+        border-top: 1px solid var(--border-wine);
+        position: relative;
+        padding-top: 80px;
+        overflow: hidden;
+      }
+
+      .footer-glow {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 600px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(240, 193, 75, 0.08) 0%, transparent 70%);
+        pointer-events: none;
+      }
+
+      .footer-newsletter {
+        background: var(--bg-wine-card);
+        border: 1px solid var(--border-wine);
+        border-radius: var(--radius-lg);
+        padding: 40px;
+        margin-bottom: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 30px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      }
+
+      .footer-news-info {
+        max-width: 500px;
+      }
+
+      .footer-news-info h3 {
+        font-family: var(--font-serif);
+        font-size: 1.8rem;
+        color: var(--text-main);
+        margin-bottom: 6px;
+      }
+
+      .footer-news-form {
+        display: flex;
+        gap: 12px;
+        flex: 1;
+        max-width: 480px;
+      }
+
+      .footer-news-input {
+        flex: 1;
+        background: rgba(18, 1, 5, 0.8);
+        border: 1px solid var(--border-wine);
+        border-radius: var(--radius-sm);
+        padding: 14px 18px;
+        color: var(--text-main);
+        font-family: var(--font-sans);
+        font-size: 0.9rem;
+        outline: none;
+        transition: var(--transition);
+      }
+
+      .footer-news-input:focus {
+        border-color: var(--gold-primary);
+        box-shadow: 0 0 12px var(--gold-glow);
+      }
+
+      .footer-grid {
+        display: grid;
+        grid-template-columns: 1.8fr 1fr 1.2fr 1.2fr;
+        gap: 40px;
+        padding-bottom: 60px;
+      }
+
+      .footer-col-brand .brand {
+        margin-bottom: 16px;
+      }
+
+      .footer-brand-desc {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        line-height: 1.6;
+        margin-bottom: 24px;
+        max-width: 320px;
+      }
+
+      .footer-col-title {
+        font-family: var(--font-serif);
+        font-size: 1.2rem;
+        color: var(--text-main);
+        margin-bottom: 20px;
+        position: relative;
+        padding-bottom: 10px;
+      }
+
+      .footer-col-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 30px;
+        height: 2px;
+        background: var(--gold-primary);
+      }
+
+      .footer-links {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .footer-links a {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .footer-links a:hover {
+        color: var(--gold-primary);
+        transform: translateX(5px);
+      }
+
+      .footer-info-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .footer-info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        color: var(--text-muted);
+        font-size: 0.88rem;
+      }
+
+      .footer-info-item i {
+        color: var(--gold-primary);
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        margin-top: 3px;
+      }
+
+      .footer-socials {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      .footer-social-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--bg-wine-card);
+        border: 1px solid var(--border-wine);
+        color: var(--gold-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+      }
+
+      .footer-social-btn:hover {
+        background: var(--gold-primary);
+        color: #120105;
+        box-shadow: 0 0 15px var(--gold-glow);
+        transform: translateY(-3px);
+      }
+
+      .footer-bottom {
+        border-top: 1px solid rgba(240, 193, 75, 0.12);
+        padding: 24px 0;
+        background: #080002;
+      }
+
+      .footer-bottom-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: var(--text-dim);
+        font-size: 0.82rem;
+      }
+
+      .footer-legal-links {
+        display: flex;
+        gap: 20px;
+      }
+
+      .footer-legal-links a {
+        color: var(--text-dim);
+        transition: color 0.3s ease;
+      }
+
+      .footer-legal-links a:hover {
+        color: var(--gold-primary);
+      }
+
+      /* ANIMACIONES & UTILIDADES */
+      [data-reveal] {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      [data-reveal].is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .back-to-top {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: var(--bg-wine-card);
+        border: 1px solid var(--gold-primary);
+        color: var(--gold-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        opacity: 0;
+        visibility: hidden;
+        transition: var(--transition);
+        z-index: 40;
+      }
+      .back-to-top.is-visible { opacity: 1; visibility: visible; }
+
+      @media (max-width: 900px) {
+        .nav-desktop { display: none; }
+        .menu-toggle { display: flex; }
+        .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+        .hero-title-editorial { font-size: 2.8rem; }
+        .hero-float-badge { display: none; }
+        .editorial-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+        .floorplan-layout { grid-template-columns: 1fr; }
+        .asymmetric-grid { grid-template-columns: 1fr; }
+        .reviews-grid { grid-template-columns: 1fr; }
+        .testimonials-cards { grid-template-columns: 1fr; }
+        .exp-grid { grid-template-columns: 1fr; }
+        .exp-preview-card { height: 380px; }
+        .footer-newsletter { flex-direction: column; text-align: center; }
+        .footer-news-form { width: 100%; flex-direction: column; }
+        .footer-grid { grid-template-columns: 1fr; gap: 36px; }
+        .footer-bottom-inner { flex-direction: column; gap: 14px; text-align: center; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="scrollProgress" class="scroll-progress"></div>
+
+    <!-- HEADER / NAVBAR -->
+    <header class="header" id="mainHeader">
+      <div class="container header__inner">
+        <a class="brand" href="#">
+          <div class="brand__mark">
+            <i data-lucide="utensils-crossed"></i>
+          </div>
+          <span style="color: var(--text-main); font-weight: 600;">Reser<i style="color: var(--gold-primary); font-style: normal;">Va</i></span>
+        </a>
+
+        <nav class="nav-desktop">
+          <a class="nav__link is-active" href="#booking">Reservas</a>
+          <a class="nav__link" href="#ambientes">Ambientes</a>
+          <a class="nav__link" href="#servicios">Garantía</a>
+          <a class="nav__link" href="#resenas">Reseñas</a>
+          <a class="nav__link" href="#proceso">Experiencia</a>
+        </nav>
+
+        <div style="display: flex; align-items: center; gap: 20px;">
+          <a class="btn btn--outline" href="#booking" style="border-radius: 30px; padding: 10px 22px; font-size: 0.85rem;">
+            <span>Mesa Directa</span>
+          </a>
+          
+          <button class="menu-toggle" id="menuToggle" aria-label="Abrir Menú">
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Menú Móvil Fullscreen -->
+    <div class="mobile-overlay" id="mobileOverlay">
+      <nav class="mobile-nav">
+        <a class="nav__link" href="#booking">Reservas</a>
+        <a class="nav__link" href="#ambientes">Ambientes</a>
+        <a class="nav__link" href="#servicios">Garantía</a>
+        <a class="nav__link" href="#resenas">Reseñas</a>
+        <a class="nav__link" href="#proceso">Experiencia</a>
+        <a class="btn btn--gold" href="#booking" style="margin-top: 20px;">
+          <i data-lucide="calendar"></i>
+          <span>Reservar Ahora</span>
+        </a>
+      </nav>
+    </div>
+
+    <main>
+      <!-- HERO EDITORIAL REDISEÑADO -->
+      <section class="hero-editorial" id="booking">
+        <div class="container">
+          <div class="hero-grid">
+            
+            <!-- Columna Izquierda: Narrativa de Marca -->
+            <div data-reveal>
+              <div class="hero-badge-pill">
+                <i data-lucide="sparkles"></i>
+                <span>Experiencia Gastronómica VIP</span>
+              </div>
+              <h1 class="hero-title-editorial">
+                La alta cocina exige <span>el momento exacto.</span>
+              </h1>
+              <p class="hero-desc">
+                Reserva tu espacio en tiempo real, elige la atmósfera que deseas y garantiza una atención sin esperas ni fricción.
+              </p>
+              
+              <div class="hero-stats-row">
+                <div class="hero-stat-item">
+                  <span class="hero-stat-num">100%</span>
+                  <span class="hero-stat-lbl">Mesa Garantizada</span>
+                </div>
+                <div class="hero-stat-item">
+                  <span class="hero-stat-num">&lt; 30s</span>
+                  <span class="hero-stat-lbl">Confirmación</span>
+                </div>
+                <div class="hero-stat-item">
+                  <span class="hero-stat-num">4.9★</span>
+                  <span class="hero-stat-lbl">Satisfacción</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Columna Derecha: Tarjeta / Motor de Reserva -->
+            <div class="hero-interactive-card" data-reveal data-delay="150">
+              
+              <!-- Floating Badge -->
+              <div class="hero-float-badge">
+                <div class="badge-icon">
+                  <i data-lucide="shield-check"></i>
+                </div>
+                <div>
+                  <div class="badge-txt-main">Confirmación Inmediata</div>
+                  <div class="badge-txt-sub">Sin cargos de cancelación hasta 2h antes</div>
+                </div>
+              </div>
+
+              <div class="hero-visual-frame">
+                <img src="https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1000&auto=format&fit=crop" alt="Ambiente de restaurante exclusivo" class="hero-visual-img" />
+                
+                <div class="hero-booking-widget">
+                  <div class="widget-header">
+                    <span class="widget-title">Reserva tu experiencia</span>
+                    <span class="widget-tag">En vivo</span>
+                  </div>
+
+                  <div class="zone-pills">
+                    <div class="zone-pill is-active">Comedor Principal</div>
+                    <div class="zone-pill">Terraza VIP</div>
+                    <div class="zone-pill">Cava Privada</div>
+                  </div>
+
+                  <div class="widget-grid">
+                    <div class="widget-field">
+                      <label><i data-lucide="users"></i> Comensales</label>
+                      <select>
+                        <option>2 Personas</option>
+                        <option>4 Personas</option>
+                        <option>6+ Personas</option>
+                      </select>
+                    </div>
+                    <div class="widget-field">
+                      <label><i data-lucide="calendar"></i> Fecha</label>
+                      <input type="date" value="2026-07-25" />
+                    </div>
+                    <div class="widget-field" style="grid-column: span 2;">
+                      <label><i data-lucide="clock"></i> Horario Disponible</label>
+                      <select>
+                        <option>20:00 hrs — Disponible</option>
+                        <option>21:30 hrs — Últimas mesas</option>
+                        <option>22:15 hrs — Disponible</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <button class="btn btn--gold" style="width: 100%; border-radius: var(--radius-sm); padding: 14px;">
+                    <i data-lucide="check-circle"></i>
+                    <span>Confirmar Mesa Gratis</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- MARQUEE EDITORIAL -->
+      <div class="marquee-wrapper">
+        <div class="marquee-track">
+          <div class="marquee-item"><i data-lucide="star"></i> Selección Guía Michelin</div>
+          <div class="marquee-item"><i data-lucide="glass-water"></i> Sommelier Dedicado</div>
+          <div class="marquee-item"><i data-lucide="sparkles"></i> Ingredientes de Origen</div>
+          <div class="marquee-item"><i data-lucide="clock"></i> Cero Tiempo de Espera</div>
+          <div class="marquee-item"><i data-lucide="star"></i> Selección Guía Michelin</div>
+          <div class="marquee-item"><i data-lucide="glass-water"></i> Sommelier Dedicado</div>
+        </div>
+      </div>
+
+      <!-- AMBIENTES -->
+      <section class="experience-section" id="ambientes">
+        <div class="container">
+          <div class="editorial-header" data-reveal>
+            <div>
+              <span class="hero-tag"><i data-lucide="compass"></i> Espacios Diseñados</span>
+              <h2>Espacios concebidos para cada ocasión.</h2>
+            </div>
+            <p style="color: var(--text-muted); max-width: 400px;">
+              Cada zona de nuestro restaurante cuenta con una atmósfera lumínica, acústica y gastronómica particular.
+            </p>
+          </div>
+
+          <div class="floorplan-layout" data-reveal>
+            <div class="zone-selector">
+              <div class="zone-card is-selected">
+                <div class="zone-card-head">
+                  <span class="zone-title">La Cava Subterránea</span>
+                  <span class="zone-badge">Exclusivo</span>
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.85rem;">
+                  Atmósfera íntima rodeada de más de 800 etiquetas de vinos internacionales. Ideal para cenas románticas y privadas.
+                </p>
+              </div>
+
+              <div class="zone-card">
+                <div class="zone-card-head">
+                  <span class="zone-title">Terraza Botánica</span>
+                  <span class="zone-badge">Al Aire Libre</span>
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.85rem;">
+                  Vista panorámica de la ciudad con coctelería de autor y climatización regulada.
+                </p>
+              </div>
+
+              <div class="zone-card">
+                <div class="zone-card-head">
+                  <span class="zone-title">Salón Central & Barra</span>
+                  <span class="zone-badge">Vibrante</span>
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.85rem;">
+                  El corazón del restaurante. Cocina a la vista con show gastronómico en directo.
+                </p>
+              </div>
+            </div>
+
+            <div class="zone-display">
+              <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?q=80&w=1000&auto=format&fit=crop" alt="Cava de vinos" class="zone-img" />
+              <div class="zone-overlay">
+                <h3 style="font-family: var(--font-serif); font-size: 1.8rem; margin-bottom: 4px;">La Cava Subterránea</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Capacidad máxima: 12 personas | Servicio de Sommelier privado</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- GARANTÍAS -->
+      <section class="services-asymmetric" id="servicios">
+        <div class="container">
+          <div class="asymmetric-grid">
+            <div class="feature-big" data-reveal>
+              <span class="feature-num">01</span>
+              <span class="hero-tag"><i data-lucide="shield-check"></i> Garantía ReserVa</span>
+              <h2 style="font-family: var(--font-serif); font-size: 2.5rem; margin: 16px 0 20px; line-height: 1.2;">
+                Tu mesa está lista desde el minuto exacto de tu reserva.
+              </h2>
+              <p style="color: var(--text-muted); margin-bottom: 24px;">
+                Eliminamos las filas y los tiempos de espera ambiguos. Nuestro sistema de gestión inteligente sincroniza la cocina y el servicio de sala en tiempo real.
+              </p>
+              <a href="#booking" class="btn btn--gold">Probar Sistema</a>
+            </div>
+
+            <div class="feature-list" data-reveal data-delay="150">
+              <div class="feature-item-inline">
+                <div class="feature-icon-wrapper"><i data-lucide="bell"></i></div>
+                <div>
+                  <h4 style="font-family: var(--font-serif); font-size: 1.2rem; margin-bottom: 4px;">Recordatorios Inteligentes</h4>
+                  <p style="color: var(--text-muted); font-size: 0.88rem;">Notificaciones discretas por SMS o WhatsApp con un clic para reconfirmar o modificar.</p>
+                </div>
+              </div>
+
+              <div class="feature-item-inline">
+                <div class="feature-icon-wrapper"><i data-lucide="heart-handshake"></i></div>
+                <div>
+                  <h4 style="font-family: var(--font-serif); font-size: 1.2rem; margin-bottom: 4px;">Atención a Alergias y Preferencias</h4>
+                  <p style="color: var(--text-muted); font-size: 0.88rem;">Registra restricciones alimentarias en tu perfil para que el Chef prepare la mesa con anticipación.</p>
+                </div>
+              </div>
+
+              <div class="feature-item-inline">
+                <div class="feature-icon-wrapper"><i data-lucide="gift"></i></div>
+                <div>
+                  <h4 style="font-family: var(--font-serif); font-size: 1.2rem; margin-bottom: 4px;">Atenciones de Aniversario</h4>
+                  <p style="color: var(--text-muted); font-size: 0.88rem;">Si celebras una ocasión especial, coordinamos detalles como maridajes o postres personalizados.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RESEÑAS -->
+      <section class="reviews-section" id="resenas">
+        <div class="container">
+          <div class="reviews-grid">
+            <div class="rating-stat-card" data-reveal>
+              <div class="rating-score">4.9</div>
+              <div class="rating-stars">
+                <i data-lucide="star"></i>
+                <i data-lucide="star"></i>
+                <i data-lucide="star"></i>
+                <i data-lucide="star"></i>
+                <i data-lucide="star"></i>
+              </div>
+              <p style="color: var(--text-muted); font-size: 0.9rem; font-weight: 600;">Más de 1,200 experiencias reservadas este mes.</p>
+            </div>
+
+            <div class="testimonials-cards" data-reveal data-delay="100">
+              <div class="testimonial-card">
+                <p class="testimonial-quote">"Reservar la Cava Privada para nuestro aniversario fue la mejor decisión. Llegamos y la mesa estaba perfectamente preparada sin esperar un solo segundo."</p>
+                <div class="testimonial-author">
+                  <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop" alt="Cliente ReserVa" class="author-avatar" />
+                  <div>
+                    <div style="font-weight: 700; font-size: 0.9rem;">Valeria Mendoza</div>
+                    <div style="color: var(--text-dim); font-size: 0.75rem;">Reserva de Aniversario</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="testimonial-card">
+                <p class="testimonial-quote">"El sistema de confirmación instantánea evita dolores de cabeza para reuniones ejecutivas. Excelente nivel de puntualidad y servicio."</p>
+                <div class="testimonial-author">
+                  <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop" alt="Cliente ReserVa" class="author-avatar" />
+                  <div>
+                    <div style="font-weight: 700; font-size: 0.9rem;">Carlos Eduardo Ruiz</div>
+                    <div style="color: var(--text-dim); font-size: 0.75rem;">Cena de Negocios</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- EXPERIENCIA INTERACTIVA -->
+      <section class="exp-redesign-section" id="proceso">
+        <div class="container">
+          <div style="text-align: center; max-width: 650px; margin: 0 auto;" data-reveal>
+            <span class="hero-tag"><i data-lucide="layers"></i> Paso a Paso</span>
+            <h2 style="font-family: var(--font-serif); font-size: 3rem;">¿Cómo funciona la experiencia?</h2>
+          </div>
+
+          <div class="exp-grid">
+            <div class="exp-tabs" data-reveal>
+              <div class="exp-tab-btn is-active">
+                <div class="exp-tab-num">01</div>
+                <div>
+                  <div class="exp-tab-title">Selección de Ambiente</div>
+                  <div class="exp-tab-desc">Elige entre la Cava, la Terraza o el Comedor Central según el tono de tu reunión.</div>
+                </div>
+              </div>
+
+              <div class="exp-tab-btn">
+                <div class="exp-tab-num">02</div>
+                <div>
+                  <div class="exp-tab-title">Personalización de Visita</div>
+                  <div class="exp-tab-desc">Añade notas sobre restricciones médicas, maridaje deseado o arreglos para celebraciones.</div>
+                </div>
+              </div>
+
+              <div class="exp-tab-btn">
+                <div class="exp-tab-num">03</div>
+                <div>
+                  <div class="exp-tab-title">Llegada y Bienvenida VIP</div>
+                  <div class="exp-tab-desc">Tu anfitrión te recibe de inmediato y te guía directamente a tu mesa sin tiempo en sala de espera.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="exp-preview-card" data-reveal data-delay="150">
+              <div class="exp-status-chip">
+                <div class="pulse-dot"></div>
+                <span>Mesas Libres Hoy</span>
+              </div>
+              <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=1000&auto=format&fit=crop" alt="Paso a Paso ReserVa" class="exp-preview-img" />
+              <div class="exp-preview-overlay">
+                <span class="exp-preview-badge">Paso 01</span>
+                <h3 class="exp-preview-title">Selección de Ambiente</h3>
+                <p class="exp-preview-text">Garantiza el ambiente idóneo antes de tu llegada para que la iluminación y acústica concuerden con tu evento.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA FINAL -->
+      <section class="cta-final">
+        <div class="container" data-reveal>
+          <span class="hero-tag"><i data-lucide="utensils"></i> Reserva Garantizada</span>
+          <h2 style="font-family: var(--font-serif); font-size: 3.5rem; margin: 16px 0 24px;">¿Listo para una velada extraordinaria?</h2>
+          <p style="color: var(--text-muted); max-width: 550px; margin: 0 auto 36px;">
+            Asegura tu mesa en menos de un minuto. Confirmación inmediata directo a tu dispositivo.
+          </p>
+          <a href="#booking" class="btn btn--gold" style="padding: 16px 36px; font-size: 1rem;">
+            <i data-lucide="calendar-check"></i>
+            <span>Reservar Mi Mesa Ahora</span>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <!-- FOOTER PREMIUM -->
+    <footer class="footer-premium">
+      <div class="footer-glow"></div>
+      <div class="container">
+        
+        <!-- Newsletter VIP -->
+        <div class="footer-newsletter">
+          <div class="footer-news-info">
+            <h3>Únete al Club Gastronómico VIP</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Recibe invitaciones prioritarias a catas exclusivas, menús de temporada y noches con Chefs invitados.</p>
+          </div>
+          <form class="footer-news-form" onsubmit="event.preventDefault();">
+            <input type="email" class="footer-news-input" placeholder="Tu correo electrónico..." required />
+            <button type="submit" class="btn btn--gold">Suscribirme</button>
+          </form>
+        </div>
+
+        <!-- Grid Principal -->
+        <div class="footer-grid">
+          <div class="footer-col-brand">
+            <a class="brand" href="#">
+              <div class="brand__mark">
+                <i data-lucide="utensils-crossed"></i>
+              </div>
+              <span style="color: var(--text-main); font-weight: 600;">Reser<i style="color: var(--gold-primary); font-style: normal;">Va</i></span>
+            </a>
+            <p class="footer-brand-desc">
+              Plataforma de alta gastronomía dedicada a conectar comensales exigentes con experiencias culinarias sin tiempos de espera.
+            </p>
+            <div class="footer-socials">
+              <a href="#" class="footer-social-btn" aria-label="Instagram"><i data-lucide="instagram"></i></a>
+              <a href="#" class="footer-social-btn" aria-label="Facebook"><i data-lucide="facebook"></i></a>
+              <a href="#" class="footer-social-btn" aria-label="Twitter"><i data-lucide="twitter"></i></a>
+            </div>
+          </div>
+
+          <div>
+            <h4 class="footer-col-title">Navegación</h4>
+            <ul class="footer-links">
+              <li><a href="#booking"><i data-lucide="chevron-right"></i> Reservas</a></li>
+              <li><a href="#ambientes"><i data-lucide="chevron-right"></i> Ambientes</a></li>
+              <li><a href="#servicios"><i data-lucide="chevron-right"></i> Garantía</a></li>
+              <li><a href="#resenas"><i data-lucide="chevron-right"></i> Reseñas</a></li>
+              <li><a href="#proceso"><i data-lucide="chevron-right"></i> Experiencia</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="footer-col-title">Horarios de Atención</h4>
+            <ul class="footer-info-list">
+              <li class="footer-info-item">
+                <i data-lucide="clock"></i>
+                <div>
+                  <strong style="color: var(--text-main);">Mar - Sáb:</strong><br />13:00 - 23:30 hrs
+                </div>
+              </li>
+              <li class="footer-info-item">
+                <i data-lucide="clock"></i>
+                <div>
+                  <strong style="color: var(--text-main);">Domingos:</strong><br />12:30 - 18:00 hrs
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="footer-col-title">Ubicación & Contacto</h4>
+            <ul class="footer-info-list">
+              <li class="footer-info-item">
+                <i data-lucide="map-pin"></i>
+                <span>Av. Gastronómica 450, Distrito Central</span>
+              </li>
+              <li class="footer-info-item">
+                <i data-lucide="phone"></i>
+                <span>+57 (604) 444-8900</span>
+              </li>
+              <li class="footer-info-item">
+                <i data-lucide="mail"></i>
+                <span>reservas@reserva-app.com</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Barra Inferior -->
+      <div class="footer-bottom">
+        <div class="container footer-bottom-inner">
+          <div>© 2026 ReserVa. Todos los derechos reservados.</div>
+          <div class="footer-legal-links">
+            <a href="#">Términos del Servicio</a>
+            <a href="#">Política de Privacidad</a>
+            <a href="#">Cookies</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Botón Back to Top -->
+    <button class="back-to-top" id="backToTop" aria-label="Volver arriba">
+      <i data-lucide="arrow-up"></i>
+    </button>
+
+    <!-- SCRIPTS DE INTERACTIVIDAD -->
+    <script>
+      // Inicializar Íconos Lucide
+      lucide.createIcons();
+
+      // Scroll Progress Bar
+      const scrollProgress = document.getElementById('scrollProgress');
+      window.addEventListener('scroll', () => {
+        const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = (window.scrollY / totalHeight) * 100;
+        scrollProgress.style.width = `${progress}%`;
+      });
+
+      // Header Scroll Blur
+      const header = document.getElementById('mainHeader');
+      const backToTop = document.getElementById('backToTop');
+      
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+          header.classList.add('is-scrolled');
+          backToTop.classList.add('is-visible');
+        } else {
+          header.classList.remove('is-scrolled');
+          backToTop.classList.remove('is-visible');
+        }
+      });
+
+      backToTop.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      // Menú Móvil
+      const menuToggle = document.getElementById('menuToggle');
+      const mobileOverlay = document.getElementById('mobileOverlay');
+
+      menuToggle.addEventListener('click', () => {
+        menuToggle.classList.toggle('is-open');
+        mobileOverlay.classList.toggle('is-open');
+      });
+
+      // Cerrar menú móvil al hacer clic en un enlace
+      document.querySelectorAll('.mobile-nav .nav__link').forEach(link => {
+        link.addEventListener('click', () => {
+          menuToggle.classList.remove('is-open');
+          mobileOverlay.classList.remove('is-open');
+        });
+      });
+
+      // Animaciones al hacer scroll (Scroll Reveal)
+      const observerOptions = { threshold: 0.1 };
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+          }
+        });
+      }, observerOptions);
+
+      document.querySelectorAll('[data-reveal]').forEach(el => revealObserver.observe(el));
+
+      // Selección interactiva de zonas en el Hero (Pills)
+      const heroZonePills = document.querySelectorAll('.zone-pill');
+      heroZonePills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          heroZonePills.forEach(p => p.classList.remove('is-active'));
+          pill.classList.add('is-active');
+        });
+      });
+    </script>
+  </body>
+</html>
